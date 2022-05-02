@@ -124,10 +124,8 @@ Return `nil' if conversion is failed.
 		      :buffer nil
 		      :sentinel 'ol-youtube--mpv/sentinel
 		      :command `("mpv"
-				 "--title"
-				 ,(ol-youtube--mpv-WM-title videoId)
-				 "--input-ipc-server"
-				 ,(ol-youtube--socket-name-of videoId)
+				 ,(format "--title=%s" (ol-youtube--mpv-WM-title videoId))
+				 ,(format "--input-ipc-server=%s" (ol-youtube--socket-name-of videoId))
 				 )
 		      :plist `(:id ,videoId)))
 	   (conn (make-network-process :name (format "ol-youtube connection [%s]" videoId)
