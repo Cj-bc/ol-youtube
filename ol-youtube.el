@@ -126,6 +126,7 @@ Return `nil' if conversion is failed.
 		      :command `("mpv"
 				 ,(format "--title=%s" (ol-youtube--mpv-WM-title videoId))
 				 ,(format "--input-ipc-server=%s" (ol-youtube--socket-name-of videoId))
+				 ,(ol-youtube--get-link)
 				 )
 		      :plist `(:id ,videoId)))
 	   (conn (make-network-process :name (format "ol-youtube connection [%s]" videoId)
