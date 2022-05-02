@@ -117,7 +117,20 @@ Return `nil' if conversion is failed.
   )
 
 (defun ol-youtube--mpv/setup (videoId)
-  "Launch mpv for given videoId"
+  "Launch mpv for given videoId
+This spawns two processes:
+
+1. mpv executable process that fetch video and play
+2. Network process to access mpv IPC server
+
+This function pushe those processes into
+variable `ol-youtube--conns'.
+
+Those processes will be killed when
+
++ buffer is killed
++ mpv is killed by user
+"
   (unless (gethash videoId ol-youtube--conns)
     (let* ((mpv-proc (make-process
 		      :name (format "ol-youtube mpv [%s]" videoId)
