@@ -27,6 +27,13 @@ each entry have three properties:
 
 ;;;; --- Common utilities
 
+(defun ol-youtube--get-video-id (&optional pom)
+  "Get video id from buffer.
+As extraction requires to access the buffer, this function
+should not be called so much without care.
+"
+  (org-entry-get pom "YOUTUBE_ID" t))
+
 (defun ol-youtube--get-link (videoId)
   "Retrive YouTube link associated with entry at point-or-marker POM.
 POM is the same as `org-entry-properties'.
@@ -69,9 +76,10 @@ Return `nil' if conversion is failed.
 ;;;; --- Export function
 (defun ol-youtube-export (link description format _)
   "Convert links into URL link"
-  (let ((url (ol-youtube--create-complete-url link))
-  	(desc (or description link))
-  	)
+  (let* ((videoId (ol-youtube--get-video-id))
+	 (url (ol-youtube--create-complete-url link videoId))
+  	 (desc (or description link))
+  	 )
     (pcase format
       (`html (format "<a target=\"_blank\" href=\"%s\">%s</a>" url desc))
       (`ascii (format "%s (%s)" desc url))
@@ -92,7 +100,7 @@ Return `nil' if conversion is failed.
   (let ((proc (start-process (+ "ol-youtube mpv for " videoId)
 			     nil
 			     "mpv"
-			     (ol-youtube--create-complete-url link)
+			     (ol-youtube--create-complete-url link videoId)
 			     "--title"
 			     (ol-youtube--mpv-WM-title videoId)
 			     "--input-ipc-server"
