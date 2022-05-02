@@ -27,14 +27,13 @@ each entry have three properties:
 
 ;;;; --- Common utilities
 
-(defun ol-youtube--get-link (&optional pom)
+(defun ol-youtube--get-link (videoId)
   "Retrive YouTube link associated with entry at point-or-marker POM.
 POM is the same as `org-entry-properties'.
 "
-  (let ((linkId (org-entry-get pom "YOUTUBE_ID" t)))
-    (when (not (eq linkId nil))
-      (format "https://www.youtube.com/watch?v=%s" linkId)
-      )))
+  (when videoId
+    (format "https://www.youtube.com/watch?v=%s" videoId)
+    ))
 
 (defun ol-youtube--convert-time (timestamp)
   "Convert (HH:)MM:SS timestamp into seconds.
@@ -62,10 +61,10 @@ Return `nil' if conversion is failed.
 
 
 
-(defun ol-youtube--create-complete-url (link)
+(defun ol-youtube--create-complete-url (link videoId)
   "create complete URL from link content.
 "
-  (format "%s&t=%s" (ol-youtube--get-link) (ol-youtube--convert-time link)))
+  (format "%s&t=%s" (ol-youtube--get-link videoId) (ol-youtube--convert-time link)))
 
 ;;;; --- Export function
 (defun ol-youtube-export (link description format _)
@@ -139,7 +138,7 @@ Those processes will be killed when
 		      :command `("mpv"
 				 ,(format "--title=%s" (ol-youtube--mpv-WM-title videoId))
 				 ,(format "--input-ipc-server=%s" (ol-youtube--socket-name-of videoId))
-				 ,(ol-youtube--get-link)
+				 ,(ol-youtube--get-link videoId)
 				 )
 		      :plist `(:id ,videoId)))
 	   (conn (make-network-process :name (format "ol-youtube connection [%s]" videoId)
