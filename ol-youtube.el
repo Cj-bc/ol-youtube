@@ -2,11 +2,11 @@
 (require 'ol)
 
 (org-link-set-parameters "youtube"
-			 :export #'ol-youtube-export
+			 :export #'ol-youtube/export
 			 )
 
 ;;;; Variables
-(defvar ol-youtube--conns (make-hash-table :test 'equal)
+(defvar ol-youtube/-conns (make-hash-table :test 'equal)
   "List of currently active mpv connections.
 each entry have three properties:
 
@@ -14,27 +14,27 @@ each entry have three properties:
 + `:connection'  :: Contain connection to mpv UNIX socket
 + `:mpv-process' :: Contain process object of mpv
 
-\(ol-youtube--conns '((:id \"fooBar\" :connection conn :mpv-process proc)))
+\(ol-youtube/-conns '((:id \"fooBar\" :connection conn :mpv-process proc)))
 ")
 
-(defcustom ol-youtube-socket-name-template "/tmp/ol-youtube-mpv-sock--{}"
+(defcustom ol-youtube/socket-name-template "/tmp/ol-youtube-mpv-sock--{}"
   "path name template for UNIX socket path. {} wil be replaced with videoId"
   )
 
-(defcustom ol-youtube-mpv-WM-title-template "ol-youtube mpv -- {}"
+(defcustom ol-youtube/mpv-WM-title-template "ol-youtube mpv -- {}"
   "Base path name for UNIX socket path. {} wil be replaced with videoId"
   )
 
 ;;;; --- Common utilities
 
-(defun ol-youtube--get-video-id (&optional pom)
+(defun ol-youtube/-get-video-id (&optional pom)
   "Get video id from buffer.
 As extraction requires to access the buffer, this function
 should not be called so much without care.
 "
   (org-entry-get pom "YOUTUBE_ID" t))
 
-(defun ol-youtube--get-link (videoId)
+(defun ol-youtube/-get-link (videoId)
   "Retrive YouTube link associated with entry at point-or-marker POM.
 POM is the same as `org-entry-properties'.
 "
@@ -42,7 +42,7 @@ POM is the same as `org-entry-properties'.
     (format "https://www.youtube.com/watch?v=%s" videoId)
     ))
 
-(defun ol-youtube--convert-time (timestamp)
+(defun ol-youtube/-convert-time (timestamp)
   "Convert (HH:)MM:SS timestamp into seconds.
 Return `nil' if conversion is failed.
 "
@@ -68,16 +68,16 @@ Return `nil' if conversion is failed.
 
 
 
-(defun ol-youtube--create-complete-url (link videoId)
+(defun ol-youtube/-create-complete-url (link videoId)
   "create complete URL from link content.
 "
-  (format "%s&t=%s" (ol-youtube--get-link videoId) (ol-youtube--convert-time link)))
+  (format "%s&t=%s" (ol-youtube/-get-link videoId) (ol-youtube/-convert-time link)))
 
 ;;;; --- Export function
-(defun ol-youtube-export (link description format _)
+(defun ol-youtube/export (link description format _)
   "Convert links into URL link"
-  (let* ((videoId (ol-youtube--get-video-id))
-	 (url (ol-youtube--create-complete-url link videoId))
+  (let* ((videoId (ol-youtube/-get-video-id))
+	 (url (ol-youtube/-create-complete-url link videoId))
   	 (desc (or description link))
   	 )
     (pcase format
@@ -87,43 +87,43 @@ Return `nil' if conversion is failed.
 
 ;;;; --- Follow function
 
-(defun ol-youtube--socket-name-of (videoId)
+(defun ol-youtube/-socket-name-of (videoId)
   "Return UNIX socket path for videoId"
-  (string-replace "{}" videoId ol-youtube-socket-name-template))
+  (string-replace "{}" videoId ol-youtube/socket-name-template))
 
-(defun ol-youtube--mpv-WM-title (videoId)
+(defun ol-youtube/-mpv-WM-title (videoId)
   "Return WM title of mpv for given videoId"
-  (string-replace "{}" videoId ol-youtube-mpv-WM-title-template))
+  (string-replace "{}" videoId ol-youtube/mpv-WM-title-template))
 
-(defun ol-youtube--mpv/start (videoId link)
+(defun ol-youtube/-mpv/start (videoId link)
   "Create and return process object of mpv"
   (let ((proc (start-process (+ "ol-youtube mpv for " videoId)
 			     nil
 			     "mpv"
-			     (ol-youtube--create-complete-url link videoId)
+			     (ol-youtube/-create-complete-url link videoId)
 			     "--title"
-			     (ol-youtube--mpv-WM-title videoId)
+			     (ol-youtube/-mpv-WM-title videoId)
 			     "--input-ipc-server"
-			     (ol-youtube--socket-name-of videoId)
+			     (ol-youtube/-socket-name-of videoId)
 			     ))
-	(conn (make-network-process :remote (ol-youtube--socket-name-of videoId)
+	(conn (make-network-process :remote (ol-youtube/-socket-name-of videoId)
 				    :buffer nil))
 	)
     (puthash videoId (:process proc :connection conn))
     )
   )
 
-(defun ol-youtube--mpv/terminate (videoId)
+(defun ol-youtube/-mpv/terminate (videoId)
   "Do some work after mpv is down"
-  (let ((conns (gethash videoId ol-youtube--conns)))
+  (let ((conns (gethash videoId ol-youtube/-conns)))
     (if conns
 	(progn (delete-process (plist-get conns :connection))
 	       (delete-process (plist-get conns :process))
-	       (remhash videoId ol-youtube--conns))
+	       (remhash videoId ol-youtube/-conns))
       (message (format "mpv isn't runnning for %s" videoId))))
   )
 
-(defun ol-youtube--mpv/setup (videoId)
+(defun ol-youtube/-mpv/setup (videoId)
   "Launch mpv for given videoId
 This spawns two processes:
 
@@ -131,48 +131,48 @@ This spawns two processes:
 2. Network process to access mpv IPC server
 
 This function pushe those processes into
-variable `ol-youtube--conns'.
+variable `ol-youtube/-conns'.
 
 Those processes will be killed when
 
 + buffer is killed
 + mpv is killed by user
 "
-  (unless (gethash videoId ol-youtube--conns)
+  (unless (gethash videoId ol-youtube/-conns)
     (let* ((mpv-proc (make-process
 		      :name (format "ol-youtube mpv [%s]" videoId)
 		      :buffer nil
-		      :sentinel 'ol-youtube--mpv/sentinel
+		      :sentinel 'ol-youtube/-mpv/sentinel
 		      :command `("mpv"
-				 ,(format "--title=%s" (ol-youtube--mpv-WM-title videoId))
-				 ,(format "--input-ipc-server=%s" (ol-youtube--socket-name-of videoId))
-				 ,(ol-youtube--get-link videoId)
+				 ,(format "--title=%s" (ol-youtube/-mpv-WM-title videoId))
+				 ,(format "--input-ipc-server=%s" (ol-youtube/-socket-name-of videoId))
+				 ,(ol-youtube/-get-link videoId)
 				 )
 		      :plist `(:id ,videoId)))
 	   (conn (make-network-process :name (format "ol-youtube connection [%s]" videoId)
-				       :sentinel 'ol-youtube--mpv/sentinel
+				       :sentinel 'ol-youtube/-mpv/sentinel
 				       :plist `(:id ,videoId)
-				       :remote (ol-youtube--socket-name-of videoId))))
-      (puthash videoId `(:connection ,conn :process ,mpv-proc) ol-youtube--conns)
+				       :remote (ol-youtube/-socket-name-of videoId))))
+      (puthash videoId `(:connection ,conn :process ,mpv-proc) ol-youtube/-conns)
       (add-hook 'kill-buffer-hook `(lambda ()
-				     (ol-youtube--mpv/terminate ,videoId)) 0 t)
+				     (ol-youtube/-mpv/terminate ,videoId)) 0 t)
       )))
 
-(defun ol-youtube--mpv/sentinel (process event)
+(defun ol-youtube/-mpv/sentinel (process event)
   "Cleanup processes when process event is occured.
 
 Currently, any event will do cleanup. This shuold be
 fixed, but I'm not sure which event I should waits for.
 "
-  (ol-youtube--mpv/terminate (process-get process :id))
+  (ol-youtube/-mpv/terminate (process-get process :id))
   )
 
-(defun ol-youtube-follow (link arg)
+(defun ol-youtube/follow (link arg)
   "Control associated mpv to jump to the timestamp.
 Spawn mpv if it isn't spawned"
-  (unless (gethash (org-entry-get nil "YOUTUBE_ID" t) ol-youtube--conns)
-    (ol-youtube--mpv/setup (org-entry-get nil "YOUTUBE_ID" t)))
-  (ol-youtube--mpv-api/)
+  (unless (gethash (org-entry-get nil "YOUTUBE_ID" t) ol-youtube/-conns)
+    (ol-youtube/-mpv/setup (org-entry-get nil "YOUTUBE_ID" t)))
+  (ol-youtube/-mpv/change-time (ol-youtube/-convert-time link))
   )
 
 
