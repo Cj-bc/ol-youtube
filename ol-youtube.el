@@ -149,7 +149,7 @@ Those processes will be killed when
       ;; I need to delay launching network process so that mpv gets ready to accept IPC connection
       ;; Otherwise it cannot connect to mpv.
       ;; I think this isn't good way, but I don't know alternative
-      (run-at-time "10 sec" nil
+      (run-at-time "10 seconds" nil
 		   (lambda () 
 		     (let ((conn (make-network-process
 				  :name (format "ol-youtube connection [%s]" videoId)
