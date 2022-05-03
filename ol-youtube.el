@@ -135,7 +135,7 @@ Those processes will be killed when
 + mpv is killed by user
 "
   (unless (gethash videoId ol-youtube/-conns)
-    (let* ((mpv-proc (make-process
+    (let ((mpv-proc (make-process
 		      :name (format "ol-youtube mpv [%s]" videoId)
 		      :buffer nil
 		      :sentinel 'ol-youtube/-mpv/sentinel
@@ -145,15 +145,20 @@ Those processes will be killed when
 				 ,(format "--input-ipc-server=%s" (ol-youtube/-socket-name-of videoId))
 				 ,(ol-youtube/-get-link videoId)
 				 )
-		      :plist `(:id ,videoId)))
-	   (conn (make-network-process :name (format "ol-youtube connection [%s]" videoId)
-				       :sentinel 'ol-youtube/-mpv/sentinel
-				       :plist `(:id ,videoId)
-				       :remote (ol-youtube/-socket-name-of videoId))))
-      (puthash videoId `(:connection ,conn :process ,mpv-proc) ol-youtube/-conns)
-      (add-hook 'kill-buffer-hook `(lambda ()
-				     (ol-youtube/-mpv/terminate ,videoId)) 0 t)
-      )))
+		      :plist `(:id ,videoId))))
+      ;; I need to delay launching network process so that mpv gets ready to accept IPC connection
+      ;; Otherwise it cannot connect to mpv.
+      ;; I think this isn't good way, but I don't know alternative
+      (run-at-time "10 sec" nil
+		   (lambda () 
+		     (let ((conn (make-network-process
+				  :name (format "ol-youtube connection [%s]" videoId)
+				  :sentinel 'ol-youtube/-mpv/sentinel
+				  :plist `(:id ,videoId)
+				  :remote (ol-youtube/-socket-name-of videoId))))
+		       (puthash videoId `(:connection ,conn :process ,mpv-proc) ol-youtube/-conns)
+		       (add-hook 'kill-buffer-hook `(lambda ()
+						      (ol-youtube/-mpv/terminate ,videoId)) 0 t)))))))
 
 (defun ol-youtube/-mpv/sentinel (process event)
   "Cleanup processes when process event is occured.
