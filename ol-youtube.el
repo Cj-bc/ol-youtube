@@ -35,9 +35,7 @@ should not be called so much without care.
   (org-entry-get pom "YOUTUBE_ID" t))
 
 (defun ol-youtube/-get-link (videoId)
-  "Retrive YouTube link associated with entry at point-or-marker POM.
-POM is the same as `org-entry-properties'.
-"
+  "Create YouTube link without timestamp"
   (when videoId
     (format "https://www.youtube.com/watch?v=%s" videoId)
     ))
