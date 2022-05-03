@@ -140,6 +140,7 @@ Those processes will be killed when
 		      :buffer nil
 		      :sentinel 'ol-youtube/-mpv/sentinel
 		      :command `("mpv"
+				 "--no-terminal"
 				 ,(format "--title=%s" (ol-youtube/-mpv-WM-title videoId))
 				 ,(format "--input-ipc-server=%s" (ol-youtube/-socket-name-of videoId))
 				 ,(ol-youtube/-get-link videoId)
