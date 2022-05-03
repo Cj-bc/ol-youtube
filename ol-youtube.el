@@ -83,11 +83,9 @@ Return `nil' if conversion is failed.
       (`ascii (format "%s (%s)" desc url))
       (_ (format "%s (%s)" desc url)))))
 
-;;;; --- Follow function
 
-(defun ol-youtube/-socket-name-of (videoId)
-  "Return UNIX socket path for videoId"
-  (string-replace "{}" videoId ol-youtube/socket-name-template))
+
+;;;; ol-youtube/-mpv
 
 (defun ol-youtube/-mpv-WM-title (videoId)
   "Return WM title of mpv for given videoId"
@@ -164,6 +162,11 @@ fixed, but I'm not sure which event I should waits for.
 "
   (ol-youtube/-mpv/terminate (process-get process :id))
   )
+
+;;;; --- Follow function
+(defun ol-youtube/-socket-name-of (videoId)
+  "Return UNIX socket path for videoId"
+  (string-replace "{}" videoId ol-youtube/socket-name-template))
 
 (defun ol-youtube/follow (link arg)
   "Control associated mpv to jump to the timestamp.
