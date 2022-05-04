@@ -6,7 +6,7 @@
 			 )
 
 ;;;; Variables
-(defvar ol-youtube/-conns (make-hash-table :test 'equal)
+(defvar ol-youtube/-sessions (make-hash-table :test 'equal)
   "Hash table of currently running mpvs.
 KEY is videoId, and VALUE is mpv process object that is playing
 videoId's video.
@@ -84,10 +84,10 @@ Return `nil' if conversion is failed.
 
 (defun ol-youtube/-mpv/terminate (videoId)
   "Do some work after mpv is down"
-  (let ((mpv-proc (gethash videoId ol-youtube/-conns)))
+  (let ((mpv-proc (gethash videoId ol-youtube/-sessions)))
     (if mpv-proc
 	(progn (delete-process mpv-proc)
-	       (remhash videoId ol-youtube/-conns))
+	       (remhash videoId ol-youtube/-sessions))
       (message (format "mpv isn't runnning for %s" videoId))))
   )
 
@@ -99,14 +99,14 @@ This spawns two processes:
 2. Network process to access mpv IPC server
 
 This function pushe those processes into
-variable `ol-youtube/-conns'.
+variable `ol-youtube/-sessions'.
 
 Those processes will be killed when
 
 + buffer is killed
 + mpv is killed by user
 "
-  (unless (gethash videoId ol-youtube/-conns)
+  (unless (gethash videoId ol-youtube/-sessions)
     (let ((mpv-proc (make-process
 		      :name (format "ol-youtube mpv [%s]" videoId)
 		      :buffer nil
@@ -120,7 +120,7 @@ Those processes will be killed when
 				 ,(ol-youtube/-get-link videoId)
 				 )
 		      :plist `(:id ,videoId))))
-      (puthash videoId mpv-proc ol-youtube/-conns)
+      (puthash videoId mpv-proc ol-youtube/-sessions)
       (add-hook 'kill-buffer-hook `(lambda ()
 				     (ol-youtube/-mpv/terminate ,videoId)) 0 t)
       )))
@@ -157,9 +157,9 @@ UNIX socket for mpv's JSON IPC server
   "Control associated mpv to jump to the timestamp.
 Spawn mpv if it isn't spawned"
   (let ((videoId (ol-youtube/-get-video-id)))
-    (unless (gethash videoId ol-youtube/-conns)
+    (unless (gethash videoId ol-youtube/-sessions)
       (ol-youtube/-mpv/setup videoId))
-    (let ((mpv-proc (gethash videoId ol-youtube/-conns)))
+    (let ((mpv-proc (gethash videoId ol-youtube/-sessions)))
       (ol-youtube/-mpv/change-time mpv-proc (ol-youtube/-convert-time link))
     )))
 
