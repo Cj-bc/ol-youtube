@@ -1,5 +1,8 @@
 ;;; Code:
 (require 'ol)
+(require 'org)
+(require 'cl-macs)
+(require 'parse-time)
 
 (org-link-set-parameters "youtube"
 			 :export #'ol-youtube/export
