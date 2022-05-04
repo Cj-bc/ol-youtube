@@ -125,13 +125,6 @@ Those processes will be killed when
 				     (ol-youtube/-mpv/terminate ,videoId)) 0 t)
       )))
 
-(defun ol-youtube/-mpv/ipc-buffer-name (videoId)
-  "Return buffer name for IPC process for VIDEOID.
-
-Whenever possible, you should get buffer from process object itself.
-"
-  (format "ol-youtube ipc server [%s]" videoId))
-
 (defun ol-youtube/-mpv/sentinel (process event)
   "Cleanup processes when process event is occured.
 
