@@ -12,10 +12,6 @@ KEY is videoId, and VALUE is mpv process object that is playing
 videoId's video.
 ")
 
-(defcustom ol-youtube/socket-name-template "/tmp/ol-youtube-mpv-sock--{}"
-  "path name template for UNIX socket path. {} wil be replaced with videoId"
-  )
-
 (defcustom ol-youtube/mpv-WM-title-template "ol-youtube mpv -- {}"
   "Base path name for UNIX socket path. {} wil be replaced with videoId"
   )
@@ -157,10 +153,6 @@ UNIX socket for mpv's JSON IPC server
    (format "%s\n" (json-encode `(("command" . ["set_property" "time-pos" ,second]))))))
 
 ;;;; --- Follow function
-(defun ol-youtube/-socket-name-of (videoId)
-  "Return UNIX socket path for videoId"
-  (string-replace "{}" videoId ol-youtube/socket-name-template))
-
 (defun ol-youtube/follow (link arg)
   "Control associated mpv to jump to the timestamp.
 Spawn mpv if it isn't spawned"
