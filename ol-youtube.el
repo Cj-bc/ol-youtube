@@ -158,10 +158,11 @@ fixed, but I'm not sure which event I should waits for.
 (defun ol-youtube/follow (link arg)
   "Control associated mpv to jump to the timestamp.
 Spawn mpv if it isn't spawned"
-  (unless (gethash (org-entry-get nil "YOUTUBE_ID" t) ol-youtube/-conns)
-    (ol-youtube/-mpv/setup (org-entry-get nil "YOUTUBE_ID" t)))
-  (ol-youtube/-mpv/change-time (ol-youtube/-convert-time link))
-  )
+  (let ((videoId (ol-youtube/-get-video-id)))
+    (unless (gethash videoId ol-youtube/-conns)
+      (ol-youtube/-mpv/setup videoId))
+      (ol-youtube/-mpv/change-time (ol-youtube/-convert-time link))
+    ))
 
 
 (provide 'ol-youtube)
