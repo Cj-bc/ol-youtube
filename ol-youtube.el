@@ -150,6 +150,17 @@ fixed, but I'm not sure which event I should waits for.
   (ol-youtube/-mpv/terminate (process-get process :id))
   )
 
+(defun ol-youtube/-mpv/change-time (connection second)
+  "Send JSON IPC through the CONNECTION to set
+player head to SECOND.
+
+CONNECTION is a network process that is connected to
+UNIX socket for mpv's JSON IPC server
+" 
+  (process-send-string
+   connection
+   (format "%s\n" (json-encode `(("command" . ["set_property" "time-pos" ,second]))))))
+
 ;;;; --- Follow function
 (defun ol-youtube/-socket-name-of (videoId)
   "Return UNIX socket path for videoId"
@@ -161,8 +172,9 @@ Spawn mpv if it isn't spawned"
   (let ((videoId (ol-youtube/-get-video-id)))
     (unless (gethash videoId ol-youtube/-conns)
       (ol-youtube/-mpv/setup videoId))
-      (ol-youtube/-mpv/change-time (ol-youtube/-convert-time link))
-    ))
+    (let ((conn (plist-get (gethash videoId ol-youtube/-conns) :process)))
+      (ol-youtube/-mpv/change-time conn (ol-youtube/-convert-time link))
+    )))
 
 
 (provide 'ol-youtube)
