@@ -91,24 +91,6 @@ Return `nil' if conversion is failed.
   "Return WM title of mpv for given videoId"
   (string-replace "{}" videoId ol-youtube/mpv-WM-title-template))
 
-(defun ol-youtube/-mpv/start (videoId link)
-  "Create and return process object of mpv"
-  (let ((proc (start-process (+ "ol-youtube mpv for " videoId)
-			     nil
-			     "mpv"
-			     (ol-youtube/-create-complete-url link videoId)
-			     "--title"
-			     (ol-youtube/-mpv-WM-title videoId)
-			     "--input-ipc-server"
-			     (ol-youtube/-socket-name-of videoId)
-			     ))
-	(conn (make-network-process :remote (ol-youtube/-socket-name-of videoId)
-				    :buffer nil))
-	)
-    (puthash videoId (:process proc :connection conn))
-    )
-  )
-
 (defun ol-youtube/-mpv/terminate (videoId)
   "Do some work after mpv is down"
   (let ((conns (gethash videoId ol-youtube/-conns)))
