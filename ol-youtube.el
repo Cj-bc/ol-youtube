@@ -3,6 +3,7 @@
 
 (org-link-set-parameters "youtube"
 			 :export #'ol-youtube/export
+			 :follow #'ol-youtube/follow
 			 )
 
 ;;;; Variables
