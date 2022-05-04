@@ -7,14 +7,9 @@
 
 ;;;; Variables
 (defvar ol-youtube/-conns (make-hash-table :test 'equal)
-  "List of currently active mpv connections.
-each entry have three properties:
-
-+ `:id'          :: Contain id of the movie
-+ `:connection'  :: Contain connection to mpv UNIX socket
-+ `:mpv-process' :: Contain process object of mpv
-
-\(ol-youtube/-conns '((:id \"fooBar\" :connection conn :mpv-process proc)))
+  "Hash table of currently running mpvs.
+KEY is videoId, and VALUE is mpv process object that is playing
+videoId's video.
 ")
 
 (defcustom ol-youtube/socket-name-template "/tmp/ol-youtube-mpv-sock--{}"
