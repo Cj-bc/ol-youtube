@@ -115,8 +115,8 @@ Those processes will be killed when
 				 "--no-input-terminal"
 				 "--input-ipc-client=fd://0"
 				 ,(ol-youtube/-get-link videoId)
-				 )
-		      :plist `(:id ,videoId))))
+				 ))))
+      (process-put mpv-proc :id videoId)
       (puthash videoId mpv-proc ol-youtube/-sessions)
       (add-hook 'kill-buffer-hook `(lambda ()
 				     (ol-youtube/-mpv/terminate ,videoId)) 0 t)
