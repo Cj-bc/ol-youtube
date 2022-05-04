@@ -88,9 +88,9 @@ Return `nil' if conversion is failed.
 
 (defun ol-youtube/-mpv/terminate (videoId)
   "Do some work after mpv is down"
-  (let ((conns (gethash videoId ol-youtube/-conns)))
-    (if conns
-	(progn (delete-process (plist-get conns :process))
+  (let ((mpv-proc (gethash videoId ol-youtube/-conns)))
+    (if mpv-proc
+	(progn (delete-process mpv-proc)
 	       (remhash videoId ol-youtube/-conns))
       (message (format "mpv isn't runnning for %s" videoId))))
   )
@@ -124,7 +124,7 @@ Those processes will be killed when
 				 ,(ol-youtube/-get-link videoId)
 				 )
 		      :plist `(:id ,videoId))))
-      (puthash videoId `(:process ,mpv-proc) ol-youtube/-conns)
+      (puthash videoId mpv-proc ol-youtube/-conns)
       (add-hook 'kill-buffer-hook `(lambda ()
 				     (ol-youtube/-mpv/terminate ,videoId)) 0 t)
       )))
@@ -167,8 +167,8 @@ Spawn mpv if it isn't spawned"
   (let ((videoId (ol-youtube/-get-video-id)))
     (unless (gethash videoId ol-youtube/-conns)
       (ol-youtube/-mpv/setup videoId))
-    (let ((conn (plist-get (gethash videoId ol-youtube/-conns) :process)))
-      (ol-youtube/-mpv/change-time conn (ol-youtube/-convert-time link))
+    (let ((mpv-proc (gethash videoId ol-youtube/-conns)))
+      (ol-youtube/-mpv/change-time mpv-proc (ol-youtube/-convert-time link))
     )))
 
 
