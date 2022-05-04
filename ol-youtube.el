@@ -8,19 +8,19 @@
 ;;;; Variables
 (defvar ol-youtube/-sessions (make-hash-table :test 'equal)
   "Hash table of currently running mpvs.
-KEY is videoId, and VALUE is mpv process object that is playing
-videoId's video.
+KEY is string and represents videoId,
+ and VALUE is mpv process object that is playing videoId's video.
 ")
 
 (defcustom ol-youtube/mpv-WM-title-template "ol-youtube mpv -- {}"
-  "Base path name for UNIX socket path. {} wil be replaced with videoId"
+  "Template of mpv windows' title. {} wil be replaced with videoId"
   )
 
 ;;;; --- Common utilities
 
 (defun ol-youtube/-get-video-id (&optional pom)
   "Get video id from buffer.
-As extraction requires to access the buffer, this function
+As this process requires to access the buffer, this function
 should not be called so much without care.
 "
   (org-entry-get pom "YOUTUBE_ID" t))
@@ -58,13 +58,13 @@ Return `nil' if conversion is failed.
 
 
 (defun ol-youtube/-create-complete-url (link videoId)
-  "create complete URL from link content.
+  "create complete URL with timestamp from link content.
 "
   (format "%s&t=%s" (ol-youtube/-get-link videoId) (ol-youtube/-convert-time link)))
 
 ;;;; --- Export function
 (defun ol-youtube/export (link description format _)
-  "Convert links into URL link"
+  "Convert ol-youtube link into URL link"
   (let* ((videoId (ol-youtube/-get-video-id))
 	 (url (ol-youtube/-create-complete-url link videoId))
   	 (desc (or description link))
@@ -83,7 +83,7 @@ Return `nil' if conversion is failed.
   (string-replace "{}" videoId ol-youtube/mpv-WM-title-template))
 
 (defun ol-youtube/-mpv/terminate (videoId)
-  "Do some work after mpv is down"
+  "Cleanup jobs after mpv"
   (let ((mpv-proc (gethash videoId ol-youtube/-sessions)))
     (if mpv-proc
 	(progn (delete-process mpv-proc)
@@ -93,13 +93,9 @@ Return `nil' if conversion is failed.
 
 (defun ol-youtube/-mpv/setup (videoId)
   "Launch mpv for given videoId
-This spawns two processes:
+This spawns one process for mpv executable that fetch video and play.
 
-1. mpv executable process that fetch video and play
-2. Network process to access mpv IPC server
-
-This function pushe those processes into
-variable `ol-youtube/-sessions'.
+This function pushe that process object to `ol-youtube/-sessions'.
 
 Those processes will be killed when
 
@@ -145,8 +141,8 @@ fixed, but I'm not sure which event I should waits for.
   "Send JSON IPC through the CONNECTION to set
 player head to SECOND.
 
-CONNECTION is a network process that is connected to
-UNIX socket for mpv's JSON IPC server
+CONNECTION is mpv process object, and second
+is the time to set in integer.
 " 
   (process-send-string
    connection
