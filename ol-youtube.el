@@ -116,7 +116,7 @@ Those processes will be killed when
 				 "--input-ipc-client=fd://0"
 				 ,(ol-youtube/-get-link videoId)
 				 ))))
-      (process-put mpv-proc :id videoId)
+      (process-put mpv-proc :videoId videoId)
       (puthash videoId mpv-proc ol-youtube/-sessions)
       (add-hook 'kill-buffer-hook `(lambda ()
 				     (ol-youtube/-mpv/terminate ,videoId)) 0 t)
@@ -135,7 +135,7 @@ Whenever possible, you should get buffer from process object itself.
 Currently, any event will do cleanup. This shuold be
 fixed, but I'm not sure which event I should waits for.
 "
-  (ol-youtube/-mpv/terminate (process-get process :id))
+  (ol-youtube/-mpv/terminate (process-get process :videoId))
   )
 
 (defun ol-youtube/-mpv/change-time (connection second)
