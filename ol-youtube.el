@@ -138,8 +138,9 @@ Whenever possible, you should get buffer from process object itself.
 Currently, any event will do cleanup. This shuold be
 fixed, but I'm not sure which event I should waits for.
 "
-  (ol-youtube/-mpv/terminate (process-get process :videoId))
-  )
+  (let ((videoId (process-get process :videoId)))
+    (ol-youtube/-mpv/terminate videoId)
+    (message "ol-youtube: mpv for %s is closed" videoId)))
 
 (defun ol-youtube/-mpv/change-time (connection second)
   "Send JSON IPC through the CONNECTION to set
@@ -158,6 +159,7 @@ is the time to set in integer.
 Spawn mpv if it isn't spawned"
   (let ((videoId (ol-youtube/-get-video-id)))
     (unless (gethash videoId ol-youtube/-sessions)
+      (message "ol-youtube: Launching mpv for [%s]...This could take some time" videoId)
       (ol-youtube/-mpv/setup videoId))
     (let ((mpv-proc (gethash videoId ol-youtube/-sessions)))
       (ol-youtube/-mpv/change-time mpv-proc (ol-youtube/-convert-time link))
