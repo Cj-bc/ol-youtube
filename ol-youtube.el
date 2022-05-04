@@ -29,12 +29,6 @@ should not be called so much without care.
 "
   (org-entry-get pom "YOUTUBE_ID" t))
 
-(defun ol-youtube/-get-link (videoId)
-  "Create YouTube link without timestamp"
-  (when videoId
-    (format "https://www.youtube.com/watch?v=%s" videoId)
-    ))
-
 (defun ol-youtube/-convert-time (timestamp)
   "Convert (HH:)MM:SS timestamp into seconds.
 Return `nil' if conversion is failed.
@@ -61,10 +55,15 @@ Return `nil' if conversion is failed.
 
 
 
-(defun ol-youtube/-create-complete-url (link videoId)
-  "create complete URL with timestamp from link content.
+(defun ol-youtube/-create-complete-url (link videoId &optional without-timestamp)
+  "Create complete URL with timestamp from link content.
+
+if WITHOUT-TIMESTAMP is non nil, it omit timestamp from url.
 "
-  (format "%s&t=%s" (ol-youtube/-get-link videoId) (ol-youtube/-convert-time link)))
+  (when videoId
+    (let ((timestamp (if without-timestamp ""
+		       (format "&t=%s" (ol-youtube/-convert-time link)))))
+      (format "https://www.youtube.com/watch?v=%s%s" videoId timestamp))))
 
 ;;;; --- Export function
 (defun ol-youtube/export (link description format _)
@@ -117,7 +116,7 @@ Those processes will be killed when
 				 ,(format "--title=%s" (ol-youtube/-mpv-WM-title videoId))
 				 "--no-input-terminal"
 				 "--input-ipc-client=fd://0"
-				 ,(ol-youtube/-get-link videoId)
+				 ,(ol-youtube/-create-complete-url nil videoId t)
 				 ))))
       (process-put mpv-proc :videoId videoId)
       (puthash videoId mpv-proc ol-youtube/-sessions)
