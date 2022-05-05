@@ -1,3 +1,20 @@
+;;; ol-youtube.el --- Org custom link for YouTube videos -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2022 Cj.bc-sd a.k.a Cj-bc
+
+;; Author: Cj.bc-sd a.k.a Cj-bc <cj.bc-sd@outlook.jp>
+;; Created: 29 Apr 2022
+;; Keywords: multimedia, outlines
+;; URL: https://github.com/Cj-bc/ol-youtube
+;; Package-Version: 0.1.0
+
+;; This file is not part of GNU Emacs.
+
+;;; Commentary:
+;; org hyperlink for Youtube video timestamps.
+;; It provides link type that can specify time stamp of YouTube Video.
+;; For details, please refer to README.org.
+
 ;;; Code:
 (require 'ol)
 (require 'org)
