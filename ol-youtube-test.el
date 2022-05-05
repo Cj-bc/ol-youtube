@@ -15,3 +15,9 @@
 		((ol-youtube/-convert-time "1:00:00") 360)
 		((ol-youtube/-convert-time "01:00:00") 360)
 		))
+
+(cort-deftest-generate ol-youtube-test/-create-complete-url :string=
+		       '(((ol-youtube/-create-complete-url "1:00" "VIDEOID") "https://www.youtube.com/watch?v=VIDEOID&t=60")
+		         ((ol-youtube/-create-complete-url "1:00" "VIDEOID" t) "https://www.youtube.com/watch?v=VIDEOID")
+			 )
+		       )
