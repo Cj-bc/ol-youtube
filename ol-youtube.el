@@ -22,7 +22,6 @@
 (require 'parse-time)
 
 (org-link-set-parameters "youtube"
-			 :export #'ol-youtube/export
 			 :follow #'ol-youtube/follow
 			 )
 
@@ -81,19 +80,6 @@ if WITHOUT-TIMESTAMP is non nil, it omit timestamp from url.
     (let ((timestamp (if without-timestamp ""
 		       (format "&t=%s" (ol-youtube/-convert-time link)))))
       (format "https://www.youtube.com/watch?v=%s%s" videoId timestamp))))
-
-;;;; --- Export function
-(defun ol-youtube/export (link description format _)
-  "Convert ol-youtube link into URL link"
-  (let* ((videoId (ol-youtube/-get-video-id))
-	 (url (ol-youtube/-create-complete-url link videoId))
-  	 (desc (or description link))
-  	 )
-    (pcase format
-      (`html (format "<a target=\"_blank\" href=\"%s\">%s</a>" url desc))
-      (`ascii (format "%s (%s)" desc url))
-      (_ (format "%s (%s)" desc url)))))
-
 
 
 ;;;; ol-youtube/-mpv
