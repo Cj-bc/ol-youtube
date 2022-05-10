@@ -39,11 +39,11 @@ KEY is string and represents video-uri,
 ;;;; --- Common utilities
 
 (defun ol-youtube/-get-video-uri (&optional pom)
-  "Get video id from buffer.
+  "Get video uri from buffer.
 As this process requires to access the buffer, this function
 should not be called so much without care.
 "
-  (org-entry-get pom "YOUTUBE_ID" t))
+  (org-entry-get pom "OL_MPV_URI" t))
 
 (defun ol-youtube/-convert-time (timestamp)
   "Convert (HH:)MM:SS timestamp into seconds.
