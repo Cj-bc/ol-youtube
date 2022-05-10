@@ -28,17 +28,17 @@
 ;;;; Variables
 (defvar ol-youtube/-sessions (make-hash-table :test 'equal)
   "Hash table of currently running mpvs.
-KEY is string and represents videoId,
- and VALUE is mpv process object that is playing videoId's video.
+KEY is string and represents video-uri,
+ and VALUE is mpv process object that is playing video-uri's video.
 ")
 
 (defcustom ol-youtube/mpv-WM-title-template "ol-youtube mpv -- {}"
-  "Template of mpv windows' title. {} wil be replaced with videoId"
+  "Template of mpv windows' title. {} wil be replaced with video-uri"
   )
 
 ;;;; --- Common utilities
 
-(defun ol-youtube/-get-video-id (&optional pom)
+(defun ol-youtube/-get-video-uri (&optional pom)
   "Get video id from buffer.
 As this process requires to access the buffer, this function
 should not be called so much without care.
@@ -71,34 +71,34 @@ Return `nil' if conversion is failed.
 
 
 
-(defun ol-youtube/-create-complete-url (link videoId &optional without-timestamp)
+(defun ol-youtube/-create-complete-url (link video-uri &optional without-timestamp)
   "Create complete URL with timestamp from link content.
 
 if WITHOUT-TIMESTAMP is non nil, it omit timestamp from url.
 "
-  (when videoId
+  (when video-uri
     (let ((timestamp (if without-timestamp ""
 		       (format "&t=%s" (ol-youtube/-convert-time link)))))
-      (format "https://www.youtube.com/watch?v=%s%s" videoId timestamp))))
 
+      (format "https://www.youtube.com/watch?v=%s%s" video-uri timestamp)))
 
 ;;;; ol-youtube/-mpv
 
-(defun ol-youtube/-mpv-WM-title (videoId)
-  "Return WM title of mpv for given videoId"
-  (string-replace "{}" videoId ol-youtube/mpv-WM-title-template))
+(defun ol-youtube/-mpv-WM-title (video-uri)
+  "Return WM title of mpv for given video-uri"
+  (string-replace "{}" video-uri ol-youtube/mpv-WM-title-template))
 
-(defun ol-youtube/-mpv/terminate (videoId)
+(defun ol-youtube/-mpv/terminate (video-uri)
   "Cleanup jobs after mpv"
-  (let ((mpv-proc (gethash videoId ol-youtube/-sessions)))
+  (let ((mpv-proc (gethash video-uri ol-youtube/-sessions)))
     (if mpv-proc
 	(progn (delete-process mpv-proc)
-	       (remhash videoId ol-youtube/-sessions))
-      (message (format "mpv isn't runnning for %s" videoId))))
+	       (remhash video-uri ol-youtube/-sessions))
+      (message (format "mpv isn't runnning for %s" video-uri))))
   )
 
-(defun ol-youtube/-mpv/setup (videoId)
-  "Launch mpv for given videoId
+(defun ol-youtube/-mpv/setup (video-uri)
+  "Launch mpv for given video-uri
 This spawns one process for mpv executable that fetch video and play.
 
 This function pushe that process object to `ol-youtube/-sessions'.
@@ -108,23 +108,23 @@ Those processes will be killed when
 + buffer is killed
 + mpv is killed by user
 "
-  (unless (gethash videoId ol-youtube/-sessions)
+  (unless (gethash video-uri ol-youtube/-sessions)
     (let ((mpv-proc (make-process
-		      :name (format "ol-youtube mpv [%s]" videoId)
+		      :name (format "ol-youtube mpv [%s]" video-uri)
 		      :buffer nil
 		      :sentinel 'ol-youtube/-mpv/sentinel
 		      :connection-type 'pipe
 		      :command `("mpv"
 				 "--no-terminal"
-				 ,(format "--title=%s" (ol-youtube/-mpv-WM-title videoId))
+				 ,(format "--title=%s" (ol-youtube/-mpv-WM-title video-uri))
 				 "--no-input-terminal"
 				 "--input-ipc-client=fd://0"
-				 ,(ol-youtube/-create-complete-url nil videoId t)
+				 ,(ol-youtube/-create-complete-url nil video-uri t)
 				 ))))
-      (process-put mpv-proc :videoId videoId)
-      (puthash videoId mpv-proc ol-youtube/-sessions)
+      (process-put mpv-proc :video-uri video-uri)
+      (puthash video-uri mpv-proc ol-youtube/-sessions)
       (add-hook 'kill-buffer-hook `(lambda ()
-				     (ol-youtube/-mpv/terminate ,videoId)) 0 t)
+				     (ol-youtube/-mpv/terminate ,video-uri)) 0 t)
       )))
 
 (defun ol-youtube/-mpv/sentinel (process event)
@@ -133,9 +133,9 @@ Those processes will be killed when
 Currently, any event will do cleanup. This shuold be
 fixed, but I'm not sure which event I should waits for.
 "
-  (let ((videoId (process-get process :videoId)))
-    (ol-youtube/-mpv/terminate videoId)
-    (message "ol-youtube: mpv for %s is closed" videoId)))
+  (let ((video-uri (process-get process :video-uri)))
+    (ol-youtube/-mpv/terminate video-uri)
+    (message "ol-youtube: mpv for %s is closed" video-uri)))
 
 (defun ol-youtube/-mpv/change-time (connection second)
   "Send JSON IPC through the CONNECTION to set
@@ -152,11 +152,11 @@ is the time to set in integer.
 (defun ol-youtube/follow (link arg)
   "Control associated mpv to jump to the timestamp.
 Spawn mpv if it isn't spawned"
-  (let ((videoId (ol-youtube/-get-video-id)))
-    (unless (gethash videoId ol-youtube/-sessions)
-      (message "ol-youtube: Launching mpv for [%s]...This could take some time" videoId)
-      (ol-youtube/-mpv/setup videoId))
-    (let ((mpv-proc (gethash videoId ol-youtube/-sessions)))
+  (let ((video-uri (ol-youtube/-get-video-uri)))
+    (unless (gethash video-uri ol-youtube/-sessions)
+      (message "ol-mpv: Launching mpv for [%s]...This could take some time" video-uri)
+      (ol-youtube/-mpv/setup video-uri))
+    (let ((mpv-proc (gethash video-uri ol-youtube/-sessions)))
       (ol-youtube/-mpv/change-time mpv-proc (ol-youtube/-convert-time link))
     )))
 
