@@ -71,16 +71,6 @@ Return `nil' if conversion is failed.
 
 
 
-(defun ol-youtube/-create-complete-url (link video-uri &optional without-timestamp)
-  "Create complete URL with timestamp from link content.
-
-if WITHOUT-TIMESTAMP is non nil, it omit timestamp from url.
-"
-  (when video-uri
-    (let ((timestamp (if without-timestamp ""
-		       (format "&t=%s" (ol-youtube/-convert-time link)))))
-
-      (format "https://www.youtube.com/watch?v=%s%s" video-uri timestamp)))
 
 ;;;; ol-youtube/-mpv
 
@@ -119,7 +109,7 @@ Those processes will be killed when
 				 ,(format "--title=%s" (ol-youtube/-mpv-WM-title video-uri))
 				 "--no-input-terminal"
 				 "--input-ipc-client=fd://0"
-				 ,(ol-youtube/-create-complete-url nil video-uri t)
+				 video-uri
 				 ))))
       (process-put mpv-proc :video-uri video-uri)
       (puthash video-uri mpv-proc ol-youtube/-sessions)
