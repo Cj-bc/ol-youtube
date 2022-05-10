@@ -1,11 +1,11 @@
-* ol-youtube
+* ol-mpv
 
 org hyperlink for Youtube video timestamps.
 It provides link type that can specify time stamp of YouTube Video.
 ** Usage
 *** 1. Set up YouTube video ID to entry
 
-~ol-youtube~ uses ~OL_MPV_URI~ property with it.
+~ol-mpv~ uses ~OL_MPV_URI~ property with it.
 Set it to YouTube URL that you want to associated with:
 
 #+begin_src org

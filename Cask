@@ -3,7 +3,7 @@
 (source gnu)
 (source melpa)
     
-(package-file "ol-youtube.el")
+(package-file "ol-mpv.el")
     
 (development
  (depends-on "cort"))

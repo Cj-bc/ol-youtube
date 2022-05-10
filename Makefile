@@ -2,7 +2,7 @@
 
 all:
 
-TESTFILE := ol-youtube-test.el
+TESTFILE := ol-mpv-test.el
 
 EMACS    ?= emacs
 ELS      := $(shell cask files)

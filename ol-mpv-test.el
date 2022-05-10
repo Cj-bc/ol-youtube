@@ -1,0 +1,17 @@
+(require 'cort)
+(require 'ol-mpv)
+
+(cort-deftest-generate ol-mpv-test/-convert-time :=
+	      '(((ol-mpv/-convert-time "1") 1)
+		((ol-mpv/-convert-time "01") 1)
+		((ol-mpv/-convert-time "0:01") 1)
+		((ol-mpv/-convert-time "00:01") 1)
+		((ol-mpv/-convert-time "0:00:01") 1)
+		((ol-mpv/-convert-time "00:00:01") 1)
+		((ol-mpv/-convert-time "1:00") 60)
+		((ol-mpv/-convert-time "01:00") 60)
+		((ol-mpv/-convert-time "0:01:00") 60)
+		((ol-mpv/-convert-time "00:01:00") 60)
+		((ol-mpv/-convert-time "1:00:00") 360)
+		((ol-mpv/-convert-time "01:00:00") 360)
+		))
