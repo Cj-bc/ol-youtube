@@ -25,11 +25,11 @@ You can write it just like you do in YouTube comment.
   mpv:01:00
 #+end_src
 
-#+begin_quote
+#+begin_src org
   [[mpv:01:00][Link at 1 minute]]
   [[mpv:01][Link at 1 second]]
   [[mpv:01:00:00][Link at 1 hour]]
   [[mpv:1:00][Link at 1 minute without first 0]]
   [[mpv:1][Link at 1 second without first 0]]
   [[mpv:1:00:00][Link at 1 hour without first 0]]
-#+end_quote
+#+end_src
