@@ -6,7 +6,7 @@ It provides link type that can specify time stamp of the video.
 *** 1. Set up URI in property
 
 ~ol-mpv~ uses ~OL_MPV_URI~ property with it.
-Set it to YouTube URL that you want to associated with:
+Set it to URI that you want to associated with:
 
 #+begin_src org
   ,* Some headline
@@ -33,3 +33,28 @@ You can write it just like you do in YouTube comment.
   [[mpv:1][Link at 1 second without first 0]]
   [[mpv:1:00:00][Link at 1 hour without first 0]]
 #+end_src
+
+*** 3. Spawn mpv by open any link in there first time
+When you open the link with help:org-open-at-point,
+it will spawn mpv if it's not spawned yet.
+*** 4. open link to change time position
+When you open the link next time,
+it will change time position.
+** Supported video URIs
+As this program uses mpv directly, all URIs supported by
+mpv are available (not tested though).
+
+For example:
++ https://
++ file:// (*this is discouraged, use normal path instead)
++ rtmp://
++ fd://
+
+
+for list of all files, please execute the command below:
+
+#+begin_src sh
+  mpv --list-protocols | grep '://$' | sort | uniq
+#+end_src
+
+or visit https://mpv.io/manual/master/#protocols
