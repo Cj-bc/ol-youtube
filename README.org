@@ -1,40 +1,60 @@
-* ol-youtube
+* ol-mpv
 
-org hyperlink for Youtube video timestamps.
-It provides link type that can specify time stamp of YouTube Video.
+org hyperlink for various video timestamps.
+It provides link type that can specify time stamp of the video.
 ** Usage
-*** 1. Set up YouTube video ID to entry
+*** 1. Set up URI in property
 
-~ol-youtube~ uses ~YOUTUBE_ID~ property with it.
-Set it to YouTube video ID that you want to associated with:
+~ol-mpv~ uses ~OL_MPV_URI~ property with it.
+Set it to URI that you want to associated with:
 
 #+begin_src org
   ,* Some headline
   :PROPERTIES:
-  :YOUTUBE_ID: mtbAUMzBWbE
+  :OL_MPV_URI: https://www.youtube.com/watch?v=mtbAUMzBWbE
   :END:
 #+end_src
 
-You can get YouTube video ID from ~v~ parameter of its video's URL:
-
-#+begin_quote
-  https://www.youtube.com/watch?v=mtbAUMzBWbE
-#+end_quote
 *** 2. Write timestamp as link
 Then, you can write timestamp as a link.
 You can write it just like you do in YouTube comment.
 
 #+begin_src org
-  youtube:01:00
+  mpv:01:00
 
-  youtube:01:00
+  mpv:01:00
 #+end_src
 
-#+begin_quote
-  [[youtube:01:00][Link at 1 minute]]
-  [[youtube:01][Link at 1 second]]
-  [[youtube:01:00:00][Link at 1 hour]]
-  [[youtube:1:00][Link at 1 minute without first 0]]
-  [[youtube:1][Link at 1 second without first 0]]
-  [[youtube:1:00:00][Link at 1 hour without first 0]]
-#+end_quote
+#+begin_src org
+  [[mpv:01:00][Link at 1 minute]]
+  [[mpv:01][Link at 1 second]]
+  [[mpv:01:00:00][Link at 1 hour]]
+  [[mpv:1:00][Link at 1 minute without first 0]]
+  [[mpv:1][Link at 1 second without first 0]]
+  [[mpv:1:00:00][Link at 1 hour without first 0]]
+#+end_src
+
+*** 3. Spawn mpv by open any link in there first time
+When you open the link with help:org-open-at-point,
+it will spawn mpv if it's not spawned yet.
+*** 4. open link to change time position
+When you open the link next time,
+it will change time position.
+** Supported video URIs
+As this program uses mpv directly, all URIs supported by
+mpv are available (not tested though).
+
+For example:
++ https://
++ file:// (*this is discouraged, use normal path instead)
++ rtmp://
++ fd://
+
+
+for list of all files, please execute the command below:
+
+#+begin_src sh
+  mpv --list-protocols | grep '://$' | sort | uniq
+#+end_src
+
+or visit https://mpv.io/manual/master/#protocols
