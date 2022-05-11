@@ -2,6 +2,14 @@
 
 org hyperlink for various video timestamps.
 It provides link type that can specify time stamp of the video.
+** Features
+This only supports ~:follow~ functionality.
+
+I've tried to implement ~:export~ before, but I'm ending up with giving
+up as there's no way to access property drawer in export phase.
+
+If you have good idea for support them, please open new issue and
+let me know.
 ** Usage
 *** 1. Set up URI in property
 
