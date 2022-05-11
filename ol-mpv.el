@@ -21,7 +21,7 @@
 (require 'cl-macs)
 (require 'parse-time)
 
-(org-link-set-parameters "youtube"
+(org-link-set-parameters "mpv"
 			 :follow #'ol-mpv/follow
 			 )
 
