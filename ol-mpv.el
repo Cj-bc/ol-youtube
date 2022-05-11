@@ -109,7 +109,7 @@ Those processes will be killed when
 				 ,(format "--title=%s" (ol-mpv/mpv-WM-title video-uri))
 				 "--no-input-terminal"
 				 "--input-ipc-client=fd://0"
-				 video-uri
+				 ,video-uri
 				 ))))
       (process-put mpv-proc :video-uri video-uri)
       (puthash video-uri mpv-proc ol-mpv/sessions)
