@@ -26,7 +26,7 @@
 			 )
 
 ;;;; Variables
-(defvar ol-mpv/-sessions (make-hash-table :test 'equal)
+(defvar ol-mpv/sessions (make-hash-table :test 'equal)
   "Hash table of currently running mpvs.
 KEY is string and represents video-uri,
  and VALUE is mpv process object that is playing video-uri's video.
@@ -38,14 +38,14 @@ KEY is string and represents video-uri,
 
 ;;;; --- Common utilities
 
-(defun ol-mpv/-get-video-uri (&optional pom)
+(defun ol-mpv/get-video-uri (&optional pom)
   "Get video uri from buffer.
 As this process requires to access the buffer, this function
 should not be called so much without care.
 "
   (org-entry-get pom "OL_MPV_URI" t))
 
-(defun ol-mpv/-convert-time (timestamp)
+(defun ol-mpv/convert-time (timestamp)
   "Convert (HH:)MM:SS timestamp into seconds.
 Return `nil' if conversion is failed.
 "
@@ -72,62 +72,62 @@ Return `nil' if conversion is failed.
 
 
 
-;;;; ol-mpv/-mpv
+;;;; ol-mpv/mpv
 
-(defun ol-mpv/-mpv-WM-title (video-uri)
+(defun ol-mpv/mpv-WM-title (video-uri)
   "Return WM title of mpv for given video-uri"
   (string-replace "{}" video-uri ol-mpv/mpv-WM-title-template))
 
-(defun ol-mpv/-mpv/terminate (video-uri)
+(defun ol-mpv/mpv/terminate (video-uri)
   "Cleanup jobs after mpv"
-  (let ((mpv-proc (gethash video-uri ol-mpv/-sessions)))
+  (let ((mpv-proc (gethash video-uri ol-mpv/sessions)))
     (if mpv-proc
 	(progn (delete-process mpv-proc)
-	       (remhash video-uri ol-mpv/-sessions))
+	       (remhash video-uri ol-mpv/sessions))
       (message (format "mpv isn't runnning for %s" video-uri))))
   )
 
-(defun ol-mpv/-mpv/setup (video-uri)
+(defun ol-mpv/mpv/setup (video-uri)
   "Launch mpv for given video-uri
 This spawns one process for mpv executable that fetch video and play.
 
-This function pushe that process object to `ol-mpv/-sessions'.
+This function pushe that process object to `ol-mpv/sessions'.
 
 Those processes will be killed when
 
 + buffer is killed
 + mpv is killed by user
 "
-  (unless (gethash video-uri ol-mpv/-sessions)
+  (unless (gethash video-uri ol-mpv/sessions)
     (let ((mpv-proc (make-process
 		      :name (format "ol-mpv mpv [%s]" video-uri)
 		      :buffer nil
-		      :sentinel 'ol-mpv/-mpv/sentinel
+		      :sentinel 'ol-mpv/mpv/sentinel
 		      :connection-type 'pipe
 		      :command `("mpv"
 				 "--no-terminal"
-				 ,(format "--title=%s" (ol-mpv/-mpv-WM-title video-uri))
+				 ,(format "--title=%s" (ol-mpv/mpv-WM-title video-uri))
 				 "--no-input-terminal"
 				 "--input-ipc-client=fd://0"
 				 video-uri
 				 ))))
       (process-put mpv-proc :video-uri video-uri)
-      (puthash video-uri mpv-proc ol-mpv/-sessions)
+      (puthash video-uri mpv-proc ol-mpv/sessions)
       (add-hook 'kill-buffer-hook `(lambda ()
-				     (ol-mpv/-mpv/terminate ,video-uri)) 0 t)
+				     (ol-mpv/mpv/terminate ,video-uri)) 0 t)
       )))
 
-(defun ol-mpv/-mpv/sentinel (process event)
+(defun ol-mpv/mpv/sentinel (process event)
   "Cleanup processes when process event is occured.
 
 Currently, any event will do cleanup. This shuold be
 fixed, but I'm not sure which event I should waits for.
 "
   (let ((video-uri (process-get process :video-uri)))
-    (ol-mpv/-mpv/terminate video-uri)
+    (ol-mpv/mpv/terminate video-uri)
     (message "ol-mpv: mpv for %s is closed" video-uri)))
 
-(defun ol-mpv/-mpv/change-time (connection second)
+(defun ol-mpv/mpv/change-time (connection second)
   "Send JSON IPC through the CONNECTION to set
 player head to SECOND.
 
@@ -142,12 +142,12 @@ is the time to set in integer.
 (defun ol-mpv/follow (link arg)
   "Control associated mpv to jump to the timestamp.
 Spawn mpv if it isn't spawned"
-  (let ((video-uri (ol-mpv/-get-video-uri)))
-    (unless (gethash video-uri ol-mpv/-sessions)
+  (let ((video-uri (ol-mpv/get-video-uri)))
+    (unless (gethash video-uri ol-mpv/sessions)
       (message "ol-mpv: Launching mpv for [%s]...This could take some time" video-uri)
-      (ol-mpv/-mpv/setup video-uri))
-    (let ((mpv-proc (gethash video-uri ol-mpv/-sessions)))
-      (ol-mpv/-mpv/change-time mpv-proc (ol-mpv/-convert-time link))
+      (ol-mpv/mpv/setup video-uri))
+    (let ((mpv-proc (gethash video-uri ol-mpv/sessions)))
+      (ol-mpv/mpv/change-time mpv-proc (ol-mpv/convert-time link))
     )))
 
 
