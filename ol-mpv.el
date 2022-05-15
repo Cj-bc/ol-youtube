@@ -34,6 +34,7 @@ KEY is string and represents video-uri,
 
 (defcustom ol-mpv/mpv-WM-title-template "ol-mpv mpv -- {}"
   "Template of mpv windows' title. {} wil be replaced with video-uri"
+  :type (string)
   )
 
 
