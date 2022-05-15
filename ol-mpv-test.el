@@ -1,6 +1,7 @@
 (require 'cort)
 (require 'ol-mpv)
 
+;; Test for ol-mpv/convert-time
 (cort-deftest-generate ol-mpv-test/-convert-time :=
 	      '(((ol-mpv/convert-time "1") 1)
 		((ol-mpv/convert-time "01") 1)
@@ -16,6 +17,7 @@
 		((ol-mpv/convert-time "01:00:00") 360)
 		))
 
+;; Test for ol-mpv/uri/get-type
 (cort-deftest-generate ol-mpv-test/uri/get-type :eq
 		       '(((ol-mpv/uri/get-type nil) nil)
 			 ((ol-mpv/uri/get-type "some-file.mp4") 'filepath)
