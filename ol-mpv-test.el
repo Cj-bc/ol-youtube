@@ -15,3 +15,13 @@
 		((ol-mpv/convert-time "1:00:00") 360)
 		((ol-mpv/convert-time "01:00:00") 360)
 		))
+
+(cort-deftest-generate ol-mpv-test/uri/get-type :eq
+		       '(((ol-mpv/uri/get-type nil) nil)
+			 ((ol-mpv/uri/get-type "some-file.mp4") 'filepath)
+			 ((ol-mpv/uri/get-type "./some-file.mp4") 'filepath)
+			 ((ol-mpv/uri/get-type "../some-file.mp4") 'filepath)
+			 ((ol-mpv/uri/get-type "~/some-file.mp4") 'filepath)
+			 ((ol-mpv/uri/get-type "/some-file.mp4") 'filepath)
+			 ((ol-mpv/uri/get-type "https://youtube.com/watch?v=FOOBAR") 'protocol))
+		       )
