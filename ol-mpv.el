@@ -157,7 +157,7 @@ Possible errors:
   (unless uri
     (signal 'ol-mpv/uri/not-found-error nil))
   (pcase (ol-mpv/uri/get-type uri)
-    ('filepath (if (file-exists-p)
+    ('filepath (if (file-exists-p uri)
 		  (expand-file-name uri)
 		(signal 'ol-mpv/uri/unreachable nil)))
     ('protocol uri)
