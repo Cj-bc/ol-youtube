@@ -38,9 +38,6 @@ KEY is string and represents video-uri,
 
 
 ;; Symbol that indicates URI type.
-(setq-local filepath (gensym))
-;; Symbol that indicates URI type.
-(setq-local protocol (gensym))
 ;;;; --- Common utilities
 
 (defun ol-mpv/get-video-uri (&optional pom)
