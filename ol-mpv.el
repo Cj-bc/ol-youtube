@@ -119,7 +119,7 @@ Those processes will be killed when
 				     (ol-mpv/mpv/terminate ,video-uri)) 0 t)
       )))
 
-(defun ol-mpv/mpv/sentinel (process event)
+(defun ol-mpv/mpv/sentinel (process _)
   "Cleanup processes when process event is occured.
 
 Currently, any event will do cleanup. This shuold be
@@ -151,7 +151,7 @@ This only ensure that:
 
 Possible errors:
 + `ol-mpv/uri/not-found-error', when given URI is `nil'
-+ `ol-mpv/uri/unreachable', when given URI is local filepath and couldn't be found
++ `ol-mpv/uri/unreachable', when given URI is local filepath & not found
 + Raw error when something wrong happend
 "
   (unless uri
@@ -185,10 +185,10 @@ Possible symbols are:
 (define-error 'ol-mpv/uri/unreachable "ol-mpv: Couldn't reach URI" 'ol-mpv-error)
 
 ;;;; --- Follow function
-(defun ol-mpv/follow (link arg)
+(defun ol-mpv/follow (link _)
   "Control associated mpv to jump to the timestamp.
 Spawn mpv if it isn't spawned"
-  (let ((video-uri (ol-mpv/uri/validate ol-mpv/get-video-uri)))
+  (let ((video-uri (ol-mpv/uri/validate (ol-mpv/get-video-uri))))
     (unless (gethash video-uri ol-mpv/sessions)
       (message "ol-mpv: Launching mpv for [%s]...This could take some time" video-uri)
       (ol-mpv/mpv/setup video-uri))
