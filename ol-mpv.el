@@ -32,6 +32,11 @@ KEY is string and represents video-uri,
  and VALUE is mpv process object that is playing video-uri's video.
 ")
 
+(defgroup ol-mpv '((ol-mpv/mpv-WM-title-template custom-variable))
+  "Group for ol-mpv library"
+  :group 'external
+  :group 'org
+  )
 (defcustom ol-mpv/mpv-WM-title-template "ol-mpv mpv -- {}"
   "Template of mpv windows' title. {} wil be replaced with video-uri"
   :type (string)
