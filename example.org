@@ -1,0 +1,22 @@
+* Usage examples
+This file contains some example usage of ol-mpv.el
+
+** YouTube link example -- WSDrone
+:PROPERTIES:
+:OL_MPV_URI: https://www.youtube.com/watch?v=mtbAUMzBWbE
+:END:
+
+#+begin_quote
+Note: The video used here is in Japanese.
+Its content isn't important, 
+#+end_quote
+
+This video is a short demonstration of my work in NeosVR.
+It is drone manipulated with voice recognision.
+The demo starts at mpv:23.
+
+When I speak some specific word, the drone goes foward (mpv:30).
+
+In order to change the word, you should change variable shown at mpv:0:50.
+
+The demo also shows intergration with Jax's wrist utility at mpv:1:37.
