@@ -66,3 +66,30 @@ for list of all files, please execute the command below:
 #+end_src
 
 or visit https://mpv.io/manual/master/#protocols
+** For debugging
+If you have some problem with mpv, you might better
+to investigate its output.
+
+To do so, replace ~:buffer~ property of ~make-process~ with some buffer,
+and remove ~"--no-terminal"~ Option from ~:command~.
+(You can use string instead of buffer object, in which case it'll create buffer
+with that name if it isn't exist yet.)
+
+#+begin_src diff
+    (let ((mpv-proc (make-process
+		:name (format "ol-mpv mpv [%s]" video-uri)
+  - 	      :buffer nil
+  + 	      :buffer "BUFFER_NAME_YOU_WANT"
+		:sentinel 'ol-mpv/mpv/sentinel
+		:connection-type 'pipe
+		:command `("mpv"
+  - 			 "--no-terminal"
+			   ,(format "--title=%s" (ol-mpv/mpv-WM-title video-uri))
+			   "--no-input-terminal"
+			   "--input-ipc-client=fd://0"
+			   ,video-uri
+			   ))))
+#+end_src
+
+This patch is for version 1.0.0, it might be changed
+in the future.
