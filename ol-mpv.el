@@ -196,12 +196,10 @@ Possible symbols are:
   "Control associated mpv to jump to the timestamp.
 Spawn mpv if it isn't spawned"
   (let ((video-uri (ol-mpv/uri/validate (ol-mpv/get-video-uri))))
-    (unless (gethash video-uri ol-mpv/sessions)
-      (message "ol-mpv: Launching mpv for [%s]...This could take some time" video-uri)
-      (ol-mpv/mpv/setup video-uri (ol-mpv/convert-time link)))
-    (let ((mpv-proc (gethash video-uri ol-mpv/sessions)))
-      (ol-mpv/mpv/change-time mpv-proc (ol-mpv/convert-time link))
-    )))
+    (pcase (gethash video-uri ol-mpv/sessions)
+      ('nil (message "ol-mpv: Launching mpv for [%s]...This could take some time" video-uri)
+	    (ol-mpv/mpv/setup video-uri (ol-mpv/convert-time link)))
+      (mpv-proc (ol-mpv/mpv/change-time mpv-proc (ol-mpv/convert-time link))))))
 
 
 (provide 'ol-mpv)
