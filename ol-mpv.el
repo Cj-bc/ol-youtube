@@ -32,10 +32,18 @@ KEY is string and represents video-uri,
  and VALUE is mpv process object that is playing video-uri's video.
 ")
 
+(defgroup ol-mpv '((ol-mpv/mpv-WM-title-template custom-variable))
+  "Group for ol-mpv library"
+  :group 'external
+  :group 'org
+  )
 (defcustom ol-mpv/mpv-WM-title-template "ol-mpv mpv -- {}"
   "Template of mpv windows' title. {} wil be replaced with video-uri"
+  :type (string)
   )
 
+
+;; Symbol that indicates URI type.
 ;;;; --- Common utilities
 
 (defun ol-mpv/get-video-uri (&optional pom)
@@ -117,7 +125,7 @@ Those processes will be killed when
 				     (ol-mpv/mpv/terminate ,video-uri)) 0 t)
       )))
 
-(defun ol-mpv/mpv/sentinel (process event)
+(defun ol-mpv/mpv/sentinel (process _)
   "Cleanup processes when process event is occured.
 
 Currently, any event will do cleanup. This shuold be
@@ -138,11 +146,55 @@ is the time to set in integer.
    connection
    (format "%s\n" (json-encode `(("command" . ["set_property" "time-pos" ,second]))))))
 
+
+;;;; --- ol-mpv/uri
+(defun ol-mpv/uri/validate (uri)
+  "Return validated URI or throw error signal.
+
+This only ensure that:
++ it is non-nil
++ if it's local file path, it exists
+
+Possible errors:
++ `ol-mpv/uri/not-found-error', when given URI is `nil'
++ `ol-mpv/uri/unreachable', when given URI is local filepath & not found
++ Raw error when something wrong happend
+"
+  (unless uri
+    (signal 'ol-mpv/uri/not-found-error nil))
+  (pcase (ol-mpv/uri/get-type uri)
+    ('filepath (if (file-exists-p uri)
+		  (expand-file-name uri)
+		(signal 'ol-mpv/uri/unreachable nil)))
+    ('protocol uri)
+    (_ (error "ol-mpv: unknown error occured"))
+    ))
+
+(defun ol-mpv/uri/get-type (uri)
+  "Return symbol of URI type
+
+Possible symbols are:
+
++ 'protocol for URI that start with \"<protocol>://\"
++ 'filepath for other path
++ nil for nil
+"
+  (when uri
+      (if (string-match-p "://" uri)
+	  'protocol
+	'filepath
+	  )))
+
+;;;; --- Errors
+(define-error 'ol-mpv-error "ol-mpv: Generic error for ol-mpv packge")
+(define-error 'ol-mpv/uri/not-found-error "ol-mpv: Couldn't find URI" 'ol-mpv-error)
+(define-error 'ol-mpv/uri/unreachable "ol-mpv: Couldn't reach URI" 'ol-mpv-error)
+
 ;;;; --- Follow function
-(defun ol-mpv/follow (link arg)
+(defun ol-mpv/follow (link _)
   "Control associated mpv to jump to the timestamp.
 Spawn mpv if it isn't spawned"
-  (let ((video-uri (ol-mpv/get-video-uri)))
+  (let ((video-uri (ol-mpv/uri/validate (ol-mpv/get-video-uri))))
     (unless (gethash video-uri ol-mpv/sessions)
       (message "ol-mpv: Launching mpv for [%s]...This could take some time" video-uri)
       (ol-mpv/mpv/setup video-uri))
