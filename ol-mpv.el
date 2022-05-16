@@ -6,7 +6,7 @@
 ;; Created: 29 Apr 2022
 ;; Keywords: multimedia, outlines
 ;; URL: https://github.com/Cj-bc/ol-mpv
-;; Package-Version: 1.0.0
+;; Package-Version: 1.1.0
 
 ;; This file is not part of GNU Emacs.
 
