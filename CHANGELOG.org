@@ -1,0 +1,21 @@
+* Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+** [Unreleased]
+
+** [1.0.0] - 2022-05-16
+*** Changed
++ Use 'mpv:' link type instead of 'youtube:'
++ Rename to 'ol-mpv' from 'ol-youtube'
+*** Added
++ Test cases for some functions
++ Github Actions for automatic testing
++ CHANGELOG file
++ example file (file:example.org)
+** [0.1.0] - 2022-05-04
+*** Added
++ Initial version for youtube links
++ Originally named as 'ol-youtube'
