@@ -95,7 +95,7 @@ Return `nil' if conversion is failed.
       (message (format "mpv isn't runnning for %s" video-uri))))
   )
 
-(defun ol-mpv/mpv/setup (video-uri)
+(defun ol-mpv/mpv/setup (video-uri &optional initial-pos)
   "Launch mpv for given video-uri
 This spawns one process for mpv executable that fetch video and play.
 
@@ -115,6 +115,7 @@ Those processes will be killed when
 		      :command `("mpv"
 				 "--no-terminal"
 				 ,(format "--title=%s" (ol-mpv/mpv-WM-title video-uri))
+				 ,(format "--start=%s" (or initial-pos 0))
 				 "--no-input-terminal"
 				 "--input-ipc-client=fd://0"
 				 ,video-uri
@@ -197,7 +198,7 @@ Spawn mpv if it isn't spawned"
   (let ((video-uri (ol-mpv/uri/validate (ol-mpv/get-video-uri))))
     (unless (gethash video-uri ol-mpv/sessions)
       (message "ol-mpv: Launching mpv for [%s]...This could take some time" video-uri)
-      (ol-mpv/mpv/setup video-uri))
+      (ol-mpv/mpv/setup video-uri (ol-mpv/convert-time link)))
     (let ((mpv-proc (gethash video-uri ol-mpv/sessions)))
       (ol-mpv/mpv/change-time mpv-proc (ol-mpv/convert-time link))
     )))
